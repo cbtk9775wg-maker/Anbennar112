@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>Anbennar Random Tile Map</title>
+
+<style>
+  body { font-family: sans-serif; background:#eee; margin:0; padding:10px; }
+  svg { width: 100%; max-width: 1600px; border:1px solid #333; touch-action: none; }
+
+  .tile {
+    fill: rgba(255,255,255,0);
+    stroke: rgba(0,0,0,0.25);
+    stroke-width: 0.6;
+    cursor: pointer;
+  }
+</style>
+</head>
+
+<body>
+
+<h2>Anbennar Random Tile Painter</h2>
+
+<input type="color" id="color" value="#ff0000">
+<button onclick="resetTiles()">Reset</button>
+<button onclick="randomize()">Re-roll Tiles</button>
+
+<br><br>
+
+<svg id="map" viewBox="0 0 1600 800">
+  <image href="anbennar_map.jpg" x="0" y="0" width="1600" height="800"/>
+  <g id="tiles"></g>
+</svg>
+
+<script>
+const WIDTH = 1600;
+const HEIGHT = 800;
+const TILE_COUNT = 450;
+
+const tilesLayer = document.getElementById("tiles");
+const colorPicker = document.getElementById("color");
+
+function random(min, max) {
+  return Math.random() * (max - min) + min;
+}
+
+function generateTiles() {
+  tilesLayer.innerHTML = "";
+
+  for (let i = 0; i < TILE_COUNT; i++) {
+    const cx = random(0, WIDTH);
+    const cy = random(0, HEIGHT);
+    const points = [];
+
+    const sides = Math.floor(random(5, 8));
+    const radius = random(20, 45);
+
+    for (let a = 0; a < sides; a++) {
+      const angle = (Math.PI * 2 / sides) * a;
+      const r = radius * random(0.6, 1.1);
+      points.push(
+        (cx + Math.cos(angle) * r) + "," +
+        (cy + Math.sin(angle) * r)
+      );
+    }
+
+    const poly = document.createElementNS("http://www.w3.org/2000/svg", "polygon");
+    poly.setAttribute("points", points.join(" "));
+    poly.setAttribute("class", "tile");
+
+    poly.addEventListener("click", () => {
+      poly.setAttribute("fill", colorPicker.value);
+    });
+
+    tilesLayer.appendChild(poly);
+  }
+}
+
+function resetTiles() {
+  document.querySelectorAll(".tile").forEach(t =>
+    t.setAttribute("fill", "rgba(255,255,255,0)")
+  );
+}
+
+function randomize() {
+  generateTiles();
+}
+
+generateTiles();
+</script>
+
+</body>
+</html>
